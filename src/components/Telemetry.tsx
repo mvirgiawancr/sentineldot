@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { PORTALDOT, TARGET_BLOCK_SECONDS, type SnippetKey, OUTPUT_SNIPPETS } from "@/lib/portaldot";
 import { cn, formatInt } from "@/lib/utils";
-import { StatusDot } from "./ui";
+import { Tab } from "./ui";
 
 type Event = { block: number; gap: number; ms: number; at: string };
 
@@ -153,84 +153,79 @@ export function TelemetryTicker() {
   const slowest = cadence.reduce<number | null>((acc, v) => (v > TARGET_BLOCK_SECONDS * 1.5 ? v : acc), null);
 
   return (
-    <div className="grid gap-px bg-hairline md:grid-cols-[1.4fr_1fr]">
-      <div className="bg-ink-sunken p-4">
-        <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.14em] text-faint">
-          Inbound block stream
-        </p>
-        <table className="w-full text-left">
+    <div className="grid gap-px bg-hairline md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+      <div className="bg-ink-raised p-5">
+        <p className="text-[12px] text-faint">Blocks observed</p>
+        <table className="mt-3 w-full text-left">
           <caption className="sr-only">Recently observed Portaldot blocks with their chain interval</caption>
           <thead>
-            <tr className="font-mono text-[10px] uppercase tracking-[0.12em] text-faint">
-              <th scope="col" className="pb-2 font-normal">height</th>
-              <th scope="col" className="pb-2 font-normal">chain time</th>
-              <th scope="col" className="pb-2 text-right font-normal">interval</th>
-              <th scope="col" className="pb-2 text-right font-normal">rtt</th>
+            <tr className="text-[12px] text-faint">
+              <th scope="col" className="pb-2 font-normal">Height</th>
+              <th scope="col" className="pb-2 font-normal">Chain time</th>
+              <th scope="col" className="pb-2 text-right font-normal">Interval</th>
+              <th scope="col" className="pb-2 text-right font-normal">RTT</th>
             </tr>
           </thead>
-          <tbody className="font-mono text-[12px] tnum">
+          <tbody className="font-mono text-[13px] tnum">
             {events.length === 0 && (
               <tr>
-                <td colSpan={4} className="py-4 text-faint">
-                  {error ?? "Waiting for the next block…"}
+                <td colSpan={4} className="py-6 text-[12px] text-faint">
+                  {error ?? "Backfilling the last 32 blocks…"}
                 </td>
               </tr>
             )}
             {events.map((e) => (
-              <tr key={e.block} className="border-t border-hairline/70">
-                <td className="py-1.5 text-paper">#{formatInt(e.block)}</td>
-                <td className="py-1.5 text-muted">{e.at}</td>
+              <tr key={e.block} className="border-t border-hairline">
+                <td className="py-2 text-paper">#{formatInt(e.block)}</td>
+                <td className="py-2 text-muted">{e.at}</td>
                 <td
                   className={cn(
-                    "py-1.5 text-right",
+                    "py-2 text-right",
                     e.gap === 0
                       ? "text-faint"
                       : e.gap > TARGET_BLOCK_SECONDS * 1.5
                         ? "text-amber"
-                        : "text-emerald",
+                        : "text-paper",
                   )}
                 >
                   {e.gap ? `${e.gap}s` : "—"}
                 </td>
-                <td className="py-1.5 text-right text-muted">{e.ms}ms</td>
+                <td className="py-2 text-right text-muted">{e.ms}ms</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
 
-      <div className="bg-ink-sunken p-4">
-        <div className="mb-3 flex items-baseline justify-between">
-          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">
-            Block cadence tape
-          </p>
-          <p className="font-mono text-[11px] text-paper tnum">
+      <div className="bg-ink-raised p-5">
+        <div className="flex items-baseline justify-between gap-4">
+          <p className="text-[12px] text-faint">Block cadence</p>
+          <p className="font-mono text-[12px] text-paper tnum">
             {cadence.length ? `last ${cadence.length} blocks` : "—"}
           </p>
         </div>
 
-        <div className="relative h-28 overflow-hidden border-b border-l border-hairline">
-          <span
-            className="absolute inset-y-0 border-l border-dashed border-emerald/25"
-            style={{ left: `${(1 / 3) * 100}%` }}
-            aria-hidden
-          />
-          <div className="flex h-full items-stretch gap-px pr-1 pt-3 pb-1">
+        <div className="relative mt-3 h-[132px]">
+          <div className="pointer-events-none absolute inset-0 flex flex-col justify-between" aria-hidden>
+            {[0, 1, 2, 3].map((i) => (
+              <span key={i} className="h-px w-full bg-hairline" />
+            ))}
+          </div>
+          <div className="relative flex h-full items-end gap-px">
             {cadence.map((g, i) => {
               const late = Math.max(g / TARGET_BLOCK_SECONDS - 1, 0);
+              const lateTone =
+                g > TARGET_BLOCK_SECONDS * 2
+                  ? "bg-crimson"
+                  : g > TARGET_BLOCK_SECONDS * 1.5
+                    ? "bg-amber"
+                    : "bg-paper/45";
               return (
                 <span
                   key={`${i}-${g}`}
-                  className={cn(
-                    "mt-auto min-w-px flex-1 rounded-t-[1px]",
-                    g > TARGET_BLOCK_SECONDS * 2
-                      ? "bg-crimson"
-                      : g > TARGET_BLOCK_SECONDS * 1.5
-                        ? "bg-amber"
-                        : "bg-emerald/75",
-                  )}
+                  className={cn("min-w-px flex-1", lateTone)}
                   style={{
-                    height: `${Math.min(34 + i * 2, 96)}%`,
+                    height: `${Math.min(26 + i * 2.2, 100)}%`,
                     flexGrow: 1 + late * 2,
                   }}
                   title={`${g}s since the previous block`}
@@ -239,26 +234,27 @@ export function TelemetryTicker() {
             })}
           </div>
           {cadence.length === 0 && (
-            <p className="absolute inset-0 grid place-items-center font-mono text-[11px] text-faint">
-              {error ?? "Collecting samples…"}
+            <p className="absolute inset-0 grid place-items-center text-[12px] text-faint">
+              {error ?? "Reading the tape…"}
             </p>
           )}
         </div>
 
-        <div className="mt-1 flex justify-between font-mono text-[9px] uppercase tracking-[0.1em] text-faint">
-          <span>-{cadence.length * TARGET_BLOCK_SECONDS}s</span>
+        <div className="mt-2 flex justify-between text-[12px] text-faint tnum">
+          <span>−{cadence.length * TARGET_BLOCK_SECONDS}s</span>
           <span>now</span>
         </div>
 
-        <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[10px] text-faint">
-          <span className="flex items-center gap-1.5">
-            <StatusDot tone={slowest ? "warn" : "ok"} />
-            target {TARGET_BLOCK_SECONDS}s
-          </span>
+        <p className="mt-4 text-[12px] leading-relaxed text-faint">
           {slowest ? (
-            <span className="text-amber">· longest gap {slowest}s, tape shows the hole</span>
+            <span className="text-amber">
+              Longest gap {slowest}s against a {TARGET_BLOCK_SECONDS}s target — the bar widens to
+              the lateness, so the hole stays visible.
+            </span>
           ) : (
-            <span>· tighter spacing means the chain is keeping time</span>
+            <>
+              Target {TARGET_BLOCK_SECONDS}s. Bars widen with lateness; anything past 1.5× is amber.
+            </>
           )}
         </p>
       </div>
@@ -297,31 +293,19 @@ export function AlertBuilder() {
   }
 
   return (
-    <div className="grid gap-px bg-hairline lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)]">
-      <div className="space-y-5 bg-ink-sunken p-4">
+    <div className="grid gap-px bg-hairline lg:grid-cols-[minmax(0,300px)_minmax(0,1fr)]">
+      <div className="space-y-6 bg-ink-raised p-5">
         <fieldset>
-          <legend className="mb-2 font-mono text-[10px] uppercase tracking-[0.14em] text-faint">
-            Watch endpoint
-          </legend>
-          <div className="flex border border-hairline">
+          <legend className="mb-3 text-[12px] text-faint">Watch endpoint</legend>
+          <div className="flex gap-5" role="group" aria-label="Endpoint choice">
             {streams.map((s) => (
-              <button
-                key={s.id}
-                type="button"
-                onClick={() => setStream(s.id)}
-                aria-pressed={stream === s.id}
-                className={
-                  stream === s.id
-                    ? "flex-1 bg-hairline px-2 py-1.5 font-mono text-[11px] text-paper"
-                    : "flex-1 px-2 py-1.5 font-mono text-[11px] text-muted hover:text-paper"
-                }
-              >
+              <Tab key={s.id} active={stream === s.id} onClick={() => setStream(s.id)}>
                 {s.label}
-              </button>
+              </Tab>
             ))}
           </div>
           {stream === "custom" && (
-            <div className="mt-2">
+            <div className="mt-3">
               <input
                 value={custom}
                 onChange={(e) => setCustom(e.target.value)}
@@ -329,9 +313,9 @@ export function AlertBuilder() {
                 aria-label="Custom RPC endpoint"
                 aria-invalid={Boolean(over)}
                 spellCheck={false}
-                className="w-full border border-hairline bg-ink px-2 py-1.5 font-mono text-[12px] text-paper placeholder:text-faint focus:border-hairline-bright focus:outline-none"
+                className="h-[34px] w-full border border-hairline-bright bg-ink px-3 font-mono text-[12px] text-paper placeholder:text-faint focus:outline-none"
               />
-              {over && <p className="mt-1 font-mono text-[10px] text-crimson">{over}</p>}
+              {over && <p className="mt-1.5 text-[12px] text-crimson">{over}</p>}
             </div>
           )}
         </fieldset>
@@ -339,10 +323,10 @@ export function AlertBuilder() {
         <div>
           <label
             htmlFor="threshold"
-            className="mb-2 flex items-baseline justify-between font-mono text-[10px] uppercase tracking-[0.14em] text-faint"
+            className="mb-3 flex items-baseline justify-between text-[12px] text-faint"
           >
-            <span>Missed blocks before alert</span>
-            <span className="text-[12px] text-paper tnum">{threshold}</span>
+            <span>Missed blocks before alerting</span>
+            <span className="font-mono text-[13px] text-paper tnum">{threshold}</span>
           </label>
           <input
             id="threshold"
@@ -351,55 +335,43 @@ export function AlertBuilder() {
             max={20}
             value={threshold}
             onChange={(e) => setThreshold(Number(e.target.value))}
-            className="w-full accent-emerald"
+            className="w-full accent-paper"
           />
-          <p className="mt-1.5 font-mono text-[10px] text-faint">
+          <p className="mt-2 text-[12px] text-faint">
             {threshold <= 3
-              ? "Aggressive — good for solo validators"
+              ? "Aggressive — for solo validators"
               : threshold <= 10
-                ? "Recommended for shared node pools"
-                : "Relaxed — useful during upgrades"}
+                ? "A middle setting for shared node pools"
+                : "Relaxed — for upgrades and maintenance windows"}
           </p>
         </div>
 
         <div>
-          <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.14em] text-faint">
-            Output format
-          </p>
-          <div className="flex flex-wrap gap-1.5">
+          <p className="mb-3 text-[12px] text-faint">Output format</p>
+          <div className="flex gap-5" role="group" aria-label="Output format">
             {(Object.keys(OUTPUT_SNIPPETS) as SnippetKey[]).map((k) => (
-              <button
-                key={k}
-                type="button"
-                onClick={() => setFormat(k)}
-                aria-pressed={format === k}
-                className={
-                  format === k
-                    ? "border border-emerald/60 bg-emerald/10 px-2 py-1 font-mono text-[11px] text-emerald"
-                    : "border border-hairline px-2 py-1 font-mono text-[11px] text-muted hover:text-paper"
-                }
-              >
+              <Tab key={k} active={format === k} onClick={() => setFormat(k)}>
                 {k}
-              </button>
+              </Tab>
             ))}
           </div>
         </div>
       </div>
 
-      <div className="flex min-w-0 flex-col bg-ink-sunken">
-        <div className="flex items-center justify-between border-b border-hairline px-3 py-2">
-          <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">
+      <div className="flex min-w-0 flex-col bg-ink-raised">
+        <div className="flex items-center justify-between border-b border-hairline px-5 py-3">
+          <span className="font-mono text-[12px] text-faint tnum">
             {format} · generated
           </span>
           <button
             type="button"
             onClick={() => void copy()}
-            className="border border-hairline-bright px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-paper hover:border-emerald/60 hover:text-emerald"
+            className="border border-hairline-bright px-3.5 py-1.5 text-[13px] text-paper transition-colors hover:border-paper"
           >
             {copied ? "Copied" : "Copy"}
           </button>
         </div>
-        <pre className="min-h-[220px] flex-1 overflow-x-auto p-3 font-mono text-[11.5px] leading-relaxed text-muted">
+        <pre className="min-h-[240px] flex-1 overflow-x-auto p-5 font-mono text-[12px] leading-relaxed text-muted">
           <code>{snippet}</code>
         </pre>
       </div>

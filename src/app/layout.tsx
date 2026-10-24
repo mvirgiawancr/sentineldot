@@ -1,23 +1,27 @@
 import type { Metadata } from "next";
-import { Inter_Tight, JetBrains_Mono } from "next/font/google";
+import { Public_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const sans = Inter_Tight({
+// one grotesk for the interface, one mono for every figure and id — the
+// style's own face decision, so digits stack in columns
+const sans = Public_Sans({
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-sans",
   display: "swap",
 });
 
 const mono = JetBrains_Mono({
   subsets: ["latin"],
+  weight: ["400", "500"],
   variable: "--font-mono",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "SentinelDot — Telemetry & sentry for Portaldot nodes",
+  title: "SentinelDot — block telemetry and validator sentry for Portaldot",
   description:
-    "Live block telemetry, validator health scoring, and RPC latency diagnostics for the Portaldot Layer0 testnet.",
+    "Block cadence, RPC round-trip time and served-head regressions from the Portaldot V3 testnet, measured live in the browser.",
 };
 
 export default function RootLayout({

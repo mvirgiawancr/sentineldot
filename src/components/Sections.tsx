@@ -1,24 +1,43 @@
-import { SectionLabel } from "./ui";
+import { SectionTitle, Panel } from "./ui";
 import { TelemetryTicker, AlertBuilder } from "./Telemetry";
 
 export function TelemetrySection() {
   return (
-    <section id="telemetry" className="border-b border-hairline">
-      <div className="mx-auto max-w-[1240px] px-5 py-14 md:py-20">
-        <SectionLabel index="01">Telemetry</SectionLabel>
-        <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-end">
-          <h2 className="max-w-[420px] text-[clamp(1.7rem,3vw,2.4rem)] leading-[1.05] font-semibold tracking-[-0.02em] text-paper">
-            Every block, every gap, stamped with the round-trip that produced it.
-          </h2>
-          <p className="max-w-[520px] text-[14px] leading-relaxed text-muted">
-            Each poll records the block height, the chain timestamp and the round
-            trip to your endpoint. SentinelDot derives the real block interval
-            from chain timestamps rather than wall-clock guesses, so a stalled
-            node looks different from a slow one.
-          </p>
+    <section id="telemetry" aria-labelledby="telemetry-h">
+      <div className="mx-auto max-w-[1320px] px-5 py-16 md:px-7 md:py-20">
+        <div id="telemetry-h">
+          <SectionTitle note="from chain timestamps, not wall clock">
+            Block telemetry
+          </SectionTitle>
         </div>
-        <div className="mt-8 border border-hairline">
-          <TelemetryTicker />
+        {/* split: what it means on the left, the tape beside it */}
+        <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] lg:items-start">
+          <div>
+            <p className="max-w-[44ch] text-[20px] leading-[1.4] text-paper">
+              Every block arrives with the round trip that fetched it.
+            </p>
+            <p className="mt-4 max-w-[52ch] text-[16px] leading-[1.55] text-muted">
+              Each poll records the height, the chain timestamp and the time your
+              browser waited. The interval is derived from consecutive timestamps,
+              so a stalled node reads as a gap — and a slow connection reads as
+              one, honestly labelled.
+            </p>
+            <dl className="mt-8 space-y-4">
+              {[
+                ["gap over 1.5× target", "the poll is flagged, but the row stays"],
+                ["head moves backwards", "counted as a regressed block, not hidden"],
+                ["poll fails", "the last good numbers stay up with a retry note"],
+              ].map(([k, v]) => (
+                <div key={k} className="flex items-baseline gap-4 text-[14px]">
+                  <dt className="shrink-0 font-mono text-[12px] text-paper tnum">{k}</dt>
+                  <dd className="text-muted">{v}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+          <Panel as="figure" data-ui className="min-w-0">
+            <TelemetryTicker />
+          </Panel>
         </div>
       </div>
     </section>
@@ -27,21 +46,25 @@ export function TelemetrySection() {
 
 export function AlertsSection() {
   return (
-    <section id="alerts" className="border-b border-hairline">
-      <div className="mx-auto max-w-[1240px] px-5 py-14 md:py-20">
-        <SectionLabel index="04">Alert builder</SectionLabel>
-        <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
-          <div>
-            <h2 className="max-w-[380px] text-[clamp(1.7rem,3vw,2.4rem)] leading-[1.05] font-semibold tracking-[-0.02em] text-paper">
-              Turn a missed block into a config file.
-            </h2>
-            <p className="mt-4 max-w-[420px] text-[14px] leading-relaxed text-muted">
-              Pick the endpoint you run, choose how many missed blocks you can
-              tolerate, and copy a ready-to-paste scraper or service unit.
-            </p>
-          </div>
-          <div className="border border-hairline">
+    <section id="alerts" aria-labelledby="alerts-h">
+      <div className="mx-auto max-w-[1320px] px-5 py-16 md:px-7 md:py-20">
+        <div id="alerts-h">
+          <SectionTitle note="prometheus · systemd · curl">Take the config with you</SectionTitle>
+        </div>
+        {/* statement meets builder: left persuades, right works */}
+        <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,8fr)_minmax(0,4fr)]">
+          <Panel as="div" data-ui className="order-2 min-w-0 lg:order-1">
             <AlertBuilder />
+          </Panel>
+          <div className="order-1 lg:order-2">
+            <p className="max-w-[44ch] text-[20px] leading-[1.4] text-paper">
+              A missed block becomes a config file before the page goes down.
+            </p>
+            <p className="mt-4 max-w-[52ch] text-[16px] leading-[1.55] text-muted">
+              Pick the endpoint you run, set how many missed blocks you can
+              tolerate, and copy a scraper or a service unit. The thresholds are
+              yours — SentinelDot only describes what it sees.
+            </p>
           </div>
         </div>
       </div>

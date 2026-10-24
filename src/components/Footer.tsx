@@ -2,65 +2,36 @@ import { PORTALDOT } from "@/lib/portaldot";
 
 export function Footer() {
   return (
-    <footer className="border-t border-hairline">
-      <div className="mx-auto grid max-w-[1240px] gap-8 px-5 py-10 md:grid-cols-[1.2fr_1fr_1fr]">
-        <div>
-          <p className="font-mono text-[13px] tracking-[0.16em] text-paper">
-            SENTINEL<span className="text-faint">DOT</span>
-          </p>
-          <p className="mt-2 max-w-[280px] text-[13px] leading-relaxed text-muted">
-            Observability for Portaldot node operators. Built for the
-            Portaldot Hacker House, running against the live testnet.
-          </p>
-        </div>
-        <div>
-          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">
-            Endpoints
-          </p>
-          <ul className="mt-2 space-y-1 font-mono text-[11px] text-muted">
-            <li>{PORTALDOT.rpc.replace("https://", "")}</li>
-            <li>{PORTALDOT.wss.replace("wss://", "")}</li>
-            <li>chain id {PORTALDOT.chainId}</li>
-          </ul>
-        </div>
-        <div>
-          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">
-            Source
-          </p>
-          <ul className="mt-2 space-y-1 font-mono text-[11px] text-muted">
-            <li>
-              <a className="hover:text-paper" href={PORTALDOT.explorer} target="_blank" rel="noreferrer">
-                node console
-              </a>
-            </li>
-            <li>
-              <a
-                className="hover:text-paper"
-                href="https://github.com/portaldotVolunteer/Portaldot"
-                target="_blank"
-                rel="noreferrer"
-              >
-                portaldot core
-              </a>
-            </li>
-            <li>
-              <a
-                className="hover:text-paper"
-                href="https://portaldot-dev.readthedocs.io"
-                target="_blank"
-                rel="noreferrer"
-              >
-                developer docs
-              </a>
-            </li>
-          </ul>
-        </div>
+    <footer className="mx-auto max-w-[1320px] px-5 pb-10 pt-4 md:px-7">
+      <p className="text-[26px] font-semibold tracking-[-0.015em] text-paper">
+        SentinelDot
+      </p>
+      <div className="mt-4 flex flex-wrap gap-x-8 gap-y-2 text-[13px] text-faint">
+        <a className="hover:text-paper" href={PORTALDOT.explorer} target="_blank" rel="noreferrer">
+          Node console
+        </a>
+        <a
+          className="hover:text-paper"
+          href="https://github.com/portaldotVolunteer/Portaldot"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Portaldot core
+        </a>
+        <a
+          className="hover:text-paper"
+          href="https://portaldot-dev.readthedocs.io"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Developer docs
+        </a>
       </div>
-      <div className="border-t border-hairline">
-        <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-2 px-5 py-3 font-mono text-[10px] text-faint">
-          <span>© 2026 SentinelDot · MIT</span>
-          <span>testnet data · not financial advice</span>
-        </div>
+      <div className="mt-8 flex flex-wrap items-baseline justify-between gap-2 border-t border-hairline pt-4 text-[12px] text-faint">
+        <span>© 2026 SentinelDot · MIT</span>
+        <span className="font-mono">
+          {PORTALDOT.rpc.replace("https://", "")} · chain {PORTALDOT.chainId}
+        </span>
       </div>
     </footer>
   );

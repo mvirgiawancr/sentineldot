@@ -1,72 +1,77 @@
 "use client";
 
 import { PORTALDOT } from "@/lib/portaldot";
-import { cn, formatInt } from "@/lib/utils";
-import { StatusDot } from "./ui";
+import { formatInt } from "@/lib/utils";
 import { useTelemetry } from "@/lib/useTelemetry";
 
-const links = [
+const destinations = [
   { href: "#telemetry", label: "Telemetry" },
   { href: "#validators", label: "Validators" },
   { href: "#rpc", label: "RPC bench" },
   { href: "#alerts", label: "Alerts" },
 ];
 
-export function Navbar() {
+export function Masthead() {
   const t = useTelemetry(PORTALDOT.rpc);
-  const tone =
-    t.status === "live" ? "ok" : t.status === "down" ? "bad" : t.status === "connecting" ? "idle" : "warn";
 
   return (
-    <header className="sticky top-0 z-40 border-b border-hairline bg-ink/85 backdrop-blur-md">
-      <div className="mx-auto flex h-14 max-w-[1240px] items-center gap-6 px-5">
-        <a href="#top" className="flex items-center gap-2.5">
-          <span
-            aria-hidden
-            className="grid size-5 place-items-center border border-emerald/50 bg-emerald/10 font-mono text-[10px] font-bold text-emerald"
-          >
-            S
-          </span>
-          <span className="font-mono text-[13px] tracking-[0.16em] text-paper">
-            SENTINEL<span className="text-faint">DOT</span>
+    <header className="border-b border-hairline">
+      <div className="mx-auto flex h-14 max-w-[1320px] items-center gap-8 px-5 md:px-7">
+        <a href="#top" className="flex shrink-0 items-center gap-2">
+          <Mark />
+          <span className="text-[15px] font-semibold tracking-[-0.01em] text-paper">
+            SentinelDot
           </span>
         </a>
 
         <nav className="hidden items-center gap-6 md:flex" aria-label="Sections">
-          {links.map((l) => (
+          {destinations.map((d) => (
             <a
-              key={l.href}
-              href={l.href}
-              className="text-[13px] text-muted transition-colors hover:text-paper"
+              key={d.href}
+              href={d.href}
+              className="text-[13px] text-faint transition-colors hover:text-paper"
             >
-              {l.label}
+              {d.label}
             </a>
           ))}
         </nav>
 
-        <div className="ml-auto flex items-center gap-3">
-          <div className="hidden items-center gap-4 border-r border-hairline pr-3 sm:flex">
-            <span className="flex items-center gap-2 font-mono text-[11px] text-muted">
-              <StatusDot tone={tone} pulse />
-              {t.latencyMs ? `${formatInt(t.latencyMs)}ms` : "probing"}
+        {/* the freshness stamp: what the numbers are from, and when */}
+        <div className="ml-auto flex items-center gap-5 text-[12px] tnum">
+          <span className="hidden text-faint sm:inline">
+            head{" "}
+            <span className="font-mono text-paper">
+              {t.block ? formatInt(t.block) : "—"}
             </span>
-            <span
-              className={cn(
-                "font-mono text-[11px] text-paper tnum",
-                t.block === 0 && "text-faint",
-              )}
-            >
-              #{t.block ? formatInt(t.block) : "—"}
+          </span>
+          <span className="hidden text-faint sm:inline">
+            rtt{" "}
+            <span className="font-mono text-paper">
+              {t.latencyMs ? `${formatInt(t.latencyMs)}ms` : "—"}
             </span>
-          </div>
-          <a
-            href="#rpc"
-            className="border border-hairline-bright px-3.5 py-1.5 font-mono text-[11px] uppercase tracking-[0.12em] text-paper transition-colors hover:border-emerald/60 hover:text-emerald"
-          >
-            Run a probe
-          </a>
+          </span>
+          <span className="text-faint">
+            {t.status === "live"
+              ? "live · testnet"
+              : t.status === "connecting"
+                ? "connecting"
+                : t.status === "down"
+                  ? "unreachable"
+                  : "degraded"}
+          </span>
         </div>
       </div>
     </header>
+  );
+}
+
+/** A sentry mark: the tip of a scanning arc, drawn for this product. */
+function Mark() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden className="shrink-0">
+      <path d="M10 18 A8 8 0 0 1 10 2" fill="none" stroke="var(--color-hairline-bright)" strokeWidth="1.5" />
+      <path d="M10 18 A8 8 0 0 1 18 10" fill="none" stroke="var(--color-signal)" strokeWidth="1.5" />
+      <circle cx="10" cy="18" r="1.75" fill="var(--color-paper)" />
+    </svg>
   );
 }

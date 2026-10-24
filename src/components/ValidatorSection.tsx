@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { PORTALDOT } from "@/lib/portaldot";
-import { SectionLabel, StatusDot } from "./ui";
+import { SectionTitle, Panel, StatusMark, Tab } from "./ui";
 import { ValidatorTable } from "./ValidatorTable";
 import { RpcBench } from "./RpcBench";
 import { cn, formatInt, shortHash } from "@/lib/utils";
@@ -74,48 +74,50 @@ export function ValidatorsSection({ target }: { target: string | null }) {
   }, [target]);
 
   return (
-    <section id="validators" className="border-b border-hairline">
-      <div className="mx-auto max-w-[1240px] px-5 py-14 md:py-20">
-        <SectionLabel index="02">Validator sentry</SectionLabel>
+    <section id="validators" aria-labelledby="validators-h">
+      <div className="mx-auto max-w-[1320px] px-5 py-16 md:px-7 md:py-20">
+        <div id="validators-h">
+          <SectionTitle note="local scoring model v1 — open to challenge">
+            Validator sentry
+          </SectionTitle>
+        </div>
 
-        <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)] lg:items-start">
-          <div>
-            <h2 className="max-w-[400px] text-[clamp(1.7rem,3vw,2.4rem)] leading-[1.05] font-semibold tracking-[-0.02em] text-paper">
-              A grade you can defend in a post-mortem.
-            </h2>
-            <p className="mt-4 max-w-[420px] text-[14px] leading-relaxed text-muted">
-              Uptime is weighted before everything else, then missed blocks, then
-              how much stake one operator already controls. Delegators see the
-              same number operators do.
-            </p>
+        <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] lg:items-start">
+            <div>
+              <p className="max-w-[40ch] text-[20px] leading-[1.4] text-paper">
+                One number per validator, defended in a post-mortem.
+              </p>
+              <p className="mt-4 max-w-[52ch] text-[16px] leading-[1.55] text-muted">
+                Uptime is weighted first, then missed blocks, then how much stake
+                one operator already controls. Delegators read the same number
+                operators do.
+              </p>
 
-            <ol className="mt-6 space-y-0 border-y border-hairline" aria-label="Scoring weights">
-              {[
-                { weight: "60%", label: "production uptime", note: "signed blocks / expected slots" },
-                { weight: "25%", label: "missed-block rate", note: "last 128 epochs, decaying" },
-                { weight: "15%", label: "stake spread", note: "penalises crowded operators" },
-              ].map((w) => (
-                <li
-                  key={w.label}
-                  className="flex items-baseline gap-3 border-t border-hairline/60 py-2.5 first:border-t-0"
-                >
-                  <span className="w-10 shrink-0 font-mono text-[14px] text-emerald tnum">
-                    {w.weight}
-                  </span>
-                  <div className="min-w-0">
-                    <p className="text-[13px] text-paper">{w.label}</p>
-                    <p className="truncate font-mono text-[10px] text-faint">{w.note}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
+              <ol className="mt-6" aria-label="Scoring weights">
+                {[
+                  { weight: "60", label: "production uptime", note: "signed blocks over expected slots" },
+                  { weight: "25", label: "missed-block rate", note: "last 128 epochs, decaying" },
+                  { weight: "15", label: "stake spread", note: "penalises crowded operators" },
+                ].map((w) => (
+                  <li
+                    key={w.label}
+                    className="flex items-baseline gap-4 border-t border-hairline py-3"
+                  >
+                    <span className="w-10 shrink-0 font-mono text-[20px] text-paper tnum">
+                      {w.weight}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-[14px] text-paper">{w.label}</p>
+                      <p className="text-[12px] text-faint">{w.note}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
 
-            <div className="mt-6 border border-hairline bg-ink-raised">
-              <div className="flex items-center justify-between border-b border-hairline px-3 py-2">
-                <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">
-                  Audit result
-                </span>
-                <StatusDot
+              <Panel as="div" data-ui className="mt-6 p-5">
+              <div className="flex items-center justify-between">
+                <p className="text-[12px] text-faint">Audit result</p>
+                <StatusMark
                   tone={
                     audit.state === "ok"
                       ? "ok"
@@ -125,13 +127,12 @@ export function ValidatorsSection({ target }: { target: string | null }) {
                           ? "warn"
                           : "idle"
                   }
-                  pulse={audit.state === "loading"}
                 />
               </div>
-              <div className="p-3">
+              <div className="mt-3">
                 {audit.state === "idle" && (
-                  <p className="font-mono text-[12px] text-faint">
-                    Run an audit from the hero to inspect a specific node.
+                  <p className="text-[13px] text-faint">
+                    Audit an address from the console above to inspect one node.
                   </p>
                 )}
                 {audit.state === "loading" && (
@@ -141,29 +142,29 @@ export function ValidatorsSection({ target }: { target: string | null }) {
                   </p>
                 )}
                 {audit.state === "error" && (
-                  <p className="font-mono text-[12px] text-crimson">
+                  <p className="text-[13px] text-crimson">
                     Could not reach the testnet: {audit.message}. The endpoint is
                     public, so this is usually a local network issue.
                   </p>
                 )}
                 {audit.state === "ok" && (
                   <>
-                    <dl className="grid grid-cols-2 gap-x-4 gap-y-3 font-mono text-[12px]">
+                    <dl className="grid grid-cols-2 gap-x-4 gap-y-3">
                       <div className="col-span-2">
-                        <dt className="text-[10px] uppercase tracking-[0.14em] text-faint">Target</dt>
-                        <dd className="truncate text-paper">{audit.address}</dd>
+                        <dt className="text-[12px] text-faint">Target</dt>
+                        <dd className="truncate font-mono text-[13px] text-paper">{audit.address}</dd>
                       </div>
                       <div>
-                        <dt className="text-[10px] uppercase tracking-[0.14em] text-faint">
+                        <dt className="text-[12px] text-faint">
                           Health score
                         </dt>
-                        <dd className="text-[20px] text-paper tnum">{audit.score}/100</dd>
+                        <dd className="font-mono text-[20px] text-paper tnum">{audit.score}<span className="text-[12px] text-faint">/100</span></dd>
                       </div>
                       <div>
-                        <dt className="text-[10px] uppercase tracking-[0.14em] text-faint">Grade</dt>
+                        <dt className="text-[12px] text-faint">Grade</dt>
                         <dd
                           className={cn(
-                            "text-[20px] tnum",
+                            "font-mono text-[20px] tnum",
                             audit.grade === "A"
                               ? "text-emerald"
                               : audit.grade === "B"
@@ -177,34 +178,34 @@ export function ValidatorsSection({ target }: { target: string | null }) {
                         </dd>
                       </div>
                       <div>
-                        <dt className="text-[10px] uppercase tracking-[0.14em] text-faint">
-                          RPC round trip
+                        <dt className="text-[12px] text-faint">
+                          Round trip
                         </dt>
-                        <dd className="text-paper tnum">{formatInt(audit.latency ?? 0)}ms</dd>
+                        <dd className="font-mono text-[13px] text-paper tnum">{formatInt(audit.latency ?? 0)}ms</dd>
                       </div>
                       <div>
-                        <dt className="text-[10px] uppercase tracking-[0.14em] text-faint">
+                        <dt className="text-[12px] text-faint">
                           Chain head
                         </dt>
-                        <dd className="text-paper tnum">
+                        <dd className="font-mono text-[13px] text-paper tnum">
                           #{formatInt(audit.head ?? 0)}
                         </dd>
                       </div>
                     </dl>
-                    <p className="mt-3 border-t border-hairline pt-2 font-mono text-[10px] leading-relaxed text-faint">
-                      Latency and head height are live from the testnet. Uptime and
-                      stake components come from the local scoring model until the
-                      validator registry indexer lands.
+                    <p className="mt-4 text-[12px] leading-relaxed text-faint">
+                      Round trip and head are live from the testnet. Uptime and
+                      stake come from the local scoring model until the registry
+                      indexer lands.
                     </p>
                   </>
                 )}
               </div>
+              </Panel>
             </div>
-          </div>
 
-          <div className="border border-hairline bg-ink-raised">
-            <ValidatorTable highlight={target} />
-          </div>
+            <Panel as="div" data-ui className="min-w-0">
+              <ValidatorTable highlight={target} />
+            </Panel>
         </div>
       </div>
     </section>
@@ -213,21 +214,25 @@ export function ValidatorsSection({ target }: { target: string | null }) {
 
 export function RpcSection() {
   return (
-    <section id="rpc" className="border-b border-hairline">
-      <div className="mx-auto max-w-[1240px] px-5 py-14 md:py-20">
-        <SectionLabel index="03">RPC bench</SectionLabel>
-        <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-end">
-          <h2 className="max-w-[420px] text-[clamp(1.7rem,3vw,2.4rem)] leading-[1.05] font-semibold tracking-[-0.02em] text-paper">
-            Your node against the public one, same request, same second.
-          </h2>
-          <p className="max-w-[520px] text-[14px] leading-relaxed text-muted">
-            Two round trips per endpoint, averaged. Add the endpoint you operate
-            and see whether the latency you blame on the chain is actually your
-            RPC.
-          </p>
+    <section id="rpc" aria-labelledby="rpc-h">
+      <div className="mx-auto max-w-[1320px] px-5 py-16 md:px-7 md:py-20">
+        <div id="rpc-h">
+          <SectionTitle note="two round trips per endpoint, averaged">RPC bench</SectionTitle>
         </div>
-        <div className="mt-8 border border-hairline bg-ink-raised">
-          <RpcBench />
+        {/* verdict line first, the bench beside it */}
+        <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] lg:items-start">
+          <div>
+            <p className="max-w-[44ch] text-[20px] leading-[1.4] text-paper">
+              Your node against the public one, same request, same second.
+            </p>
+            <p className="mt-4 max-w-[52ch] text-[16px] leading-[1.55] text-muted">
+              Add the endpoint you operate and see whether the latency you blame
+              on the chain is actually your RPC.
+            </p>
+          </div>
+          <Panel as="div" data-ui className="min-w-0">
+            <RpcBench />
+          </Panel>
         </div>
       </div>
     </section>

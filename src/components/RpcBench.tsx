@@ -5,7 +5,7 @@ import { Loader2, Play } from "lucide-react";
 import { PORTALDOT } from "@/lib/portaldot";
 import { probeEndpoint } from "@/lib/rpc";
 import { cn } from "@/lib/utils";
-import { StatusDot } from "./ui";
+import { StatusMark } from "./ui";
 
 type Result = {
   latency: number | null;
@@ -73,7 +73,7 @@ export function RpcBench() {
 
   return (
     <div>
-      <div className="flex flex-wrap items-center gap-2 border-b border-hairline p-3">
+      <div className="flex flex-wrap items-center gap-3 border-b border-hairline px-5 py-4">
         <input
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
@@ -86,13 +86,13 @@ export function RpcBench() {
           placeholder="https://your-node.example:8545"
           aria-label="Endpoint to benchmark"
           spellCheck={false}
-          className="min-w-[220px] flex-1 border border-hairline bg-ink px-2.5 py-1.5 font-mono text-[12px] text-paper placeholder:text-faint focus:border-hairline-bright focus:outline-none"
+          className="h-[34px] min-w-[220px] flex-1 border border-hairline-bright bg-ink px-3 font-mono text-[12px] text-paper placeholder:text-faint focus:outline-none"
         />
         <button
           type="button"
           onClick={add}
           disabled={!/^https?:\/\/|^wss?:\/\//.test(draft.trim())}
-          className="border border-hairline-bright px-2.5 py-1.5 font-mono text-[11px] uppercase tracking-[0.1em] text-paper disabled:cursor-not-allowed disabled:opacity-40"
+          className="h-[34px] border border-hairline-bright px-3.5 text-[13px] text-paper disabled:cursor-not-allowed disabled:opacity-40"
         >
           Add
         </button>
@@ -100,39 +100,39 @@ export function RpcBench() {
           type="button"
           onClick={() => void run()}
           disabled={running}
-          className="flex items-center gap-1.5 bg-emerald px-3 py-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-ink transition-colors hover:bg-emerald/85 disabled:opacity-70"
+          className="flex h-[34px] items-center gap-1.5 bg-paper px-4 text-[13px] font-medium text-ink disabled:opacity-60"
         >
           {running ? <Loader2 className="size-3.5 animate-spin" /> : <Play className="size-3.5" />}
           {running ? "Probing" : round ? "Re-run" : "Start bench"}
         </button>
         {best && (
-          <p className="ml-auto font-mono text-[11px] text-faint">
-            fastest: <span className="text-emerald">{best.latency}ms</span>
+          <p className="ml-auto font-mono text-[12px] text-faint tnum">
+            fastest <span className="text-paper">{best.latency}ms</span>
           </p>
         )}
       </div>
 
-      <ul className="divide-y divide-hairline">
+      <ul>
         {urls.map((url) => {
           const r = results[url];
           const max = Math.max(...(r?.samples ?? [1]), 1);
           return (
-            <li key={url} className="grid gap-3 p-3 sm:grid-cols-[minmax(0,1fr)_180px_auto] sm:items-center">
+            <li key={url} className="grid gap-3 border-b border-hairline px-5 py-4 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_160px_auto] sm:items-center">
               <div className="min-w-0">
-                <p className="flex items-center gap-2 font-mono text-[12px] text-paper">
-                  <StatusDot tone={!r ? "idle" : r.ok ? "ok" : "bad"} pulse={running} />
+                <p className="flex items-center gap-2 font-mono text-[13px] text-paper">
+                  <StatusMark tone={!r ? "idle" : r.ok ? "ok" : "bad"} />
                   <span className="truncate">{url}</span>
                 </p>
-                <p className="mt-0.5 font-mono text-[10px] text-faint">
-                  {r ? (r.ok ? `head #${r.block ?? "—"}` : "unreachable · check scheme or CORS") : "not probed yet"}
+                <p className="mt-1 text-[12px] text-faint">
+                  {r ? (r.ok ? `head #${r.block ?? "—"}` : "Unreachable — check the scheme or CORS") : "Not probed yet"}
                 </p>
               </div>
 
-              <div className="flex h-8 items-end gap-[2px]" aria-hidden>
+              <div className="flex h-8 items-end gap-[3px]" aria-hidden>
                 {(r?.samples.length ? r.samples : [0, 0, 0, 0, 0, 0]).map((s, i) => (
                   <span
                     key={i}
-                    className={cn("flex-1", r?.ok ? "bg-emerald/60" : "bg-hairline")}
+                    className={cn("flex-1", r?.ok ? "bg-muted/70" : "bg-hairline")}
                     style={{ height: `${Math.max((s / max) * 100, 8)}%` }}
                   />
                 ))}
@@ -140,7 +140,7 @@ export function RpcBench() {
 
               <p
                 className={cn(
-                  "font-mono text-[16px] tnum sm:text-right",
+                  "min-w-[76px] font-mono text-[20px] tnum sm:text-right",
                   !r ? "text-faint" : r.ok ? "text-paper" : "text-crimson",
                 )}
               >

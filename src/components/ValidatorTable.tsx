@@ -1,9 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ArrowUpRight, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { cn, formatInt } from "@/lib/utils";
-import { StatusDot } from "./ui";
+import { StatusMark, Tab } from "./ui";
 
 type Validator = {
   rank: number;
@@ -35,10 +35,10 @@ const seed = Array.from({ length: 24 }, (_, i) => {
 });
 
 const gradeTone: Record<Validator["grade"], string> = {
-  A: "text-emerald border-emerald/40",
-  B: "text-signal border-signal/40",
-  C: "text-amber border-amber/40",
-  D: "text-crimson border-crimson/40",
+  A: "text-emerald",
+  B: "text-signal",
+  C: "text-amber",
+  D: "text-crimson",
 };
 
 const filters = [
@@ -63,62 +63,52 @@ export function ValidatorTable({ highlight }: { highlight: string | null }) {
 
   return (
     <div>
-      <div className="flex flex-wrap items-center gap-3 border-b border-hairline px-4 py-3">
-        <div className="flex items-center gap-2 border border-hairline bg-ink px-2.5 py-1.5">
-          <Search className="size-3.5 text-faint" aria-hidden />
+      <div className="flex flex-wrap items-end gap-x-6 gap-y-3 border-b border-hairline px-5 pb-1 pt-4">
+        <label className="flex min-w-0 flex-1 items-center gap-2 pb-2">
+          <Search className="size-3.5 shrink-0 text-faint" aria-hidden />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Filter by label or address"
             aria-label="Filter validators"
             spellCheck={false}
-            className="w-52 bg-transparent font-mono text-[12px] text-paper placeholder:text-faint focus:outline-none"
+            className="w-full min-w-[160px] bg-transparent font-mono text-[13px] text-paper placeholder:text-faint focus:outline-none"
           />
-        </div>
-        <div className="flex border border-hairline">
+        </label>
+        <div className="flex gap-5" role="group" aria-label="Validator filters">
           {filters.map((f) => (
-            <button
-              key={f.id}
-              type="button"
-              onClick={() => setFilter(f.id)}
-              aria-pressed={filter === f.id}
-              className={
-                filter === f.id
-                  ? "bg-hairline px-2.5 py-1.5 font-mono text-[11px] text-paper"
-                  : "px-2.5 py-1.5 font-mono text-[11px] text-muted hover:text-paper"
-              }
-            >
+            <Tab key={f.id} active={filter === f.id} onClick={() => setFilter(f.id)}>
               {f.label}
-            </button>
+            </Tab>
           ))}
         </div>
-        <p className="ml-auto font-mono text-[11px] text-faint">
+        <p className="ml-auto pb-2 font-mono text-[12px] text-faint tnum">
           {rows.length} shown ·{" "}
-          <span className={flagged ? "text-amber" : "text-emerald"}>{flagged} flagged</span>
+          <span className={flagged ? "text-amber" : "text-faint"}>{flagged} flagged</span>
         </p>
       </div>
 
-      <div className="max-h-[420px] overflow-auto">
+      <div className="max-h-[440px] overflow-auto px-5">
         <table className="w-full text-left">
           <caption className="sr-only">
             Validator health scores derived from uptime, missed blocks and stake
             concentration
           </caption>
           <thead>
-            <tr className="border-b border-hairline font-mono text-[10px] uppercase tracking-[0.12em] text-faint">
-              <th scope="col" className="sticky top-0 z-10 bg-ink-raised px-4 py-2 font-normal">#</th>
-              <th scope="col" className="sticky top-0 z-10 bg-ink-raised py-2 font-normal">validator</th>
-              <th scope="col" className="sticky top-0 z-10 bg-ink-raised py-2 text-right font-normal">stake (POT)</th>
-              <th scope="col" className="sticky top-0 z-10 bg-ink-raised py-2 text-right font-normal">fee</th>
-              <th scope="col" className="sticky top-0 z-10 bg-ink-raised py-2 text-right font-normal">uptime</th>
-              <th scope="col" className="sticky top-0 z-10 bg-ink-raised py-2 text-right font-normal">missed</th>
-              <th scope="col" className="sticky top-0 z-10 bg-ink-raised px-4 py-2 text-center font-normal">grade</th>
+            <tr className="text-[12px] text-faint">
+              <th scope="col" className="w-10 py-2.5 font-normal">Rank</th>
+              <th scope="col" className="py-2.5 font-normal">Validator</th>
+              <th scope="col" className="py-2.5 text-right font-normal">Stake (POT)</th>
+              <th scope="col" className="hidden py-2.5 text-right font-normal sm:table-cell">Fee</th>
+              <th scope="col" className="py-2.5 text-right font-normal">Uptime</th>
+              <th scope="col" className="hidden py-2.5 text-right font-normal md:table-cell">Missed</th>
+              <th scope="col" className="py-2.5 text-right font-normal">Grade</th>
             </tr>
           </thead>
-          <tbody className="font-mono text-[12px] tnum">
+          <tbody className="font-mono text-[13px] tnum">
             {rows.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-faint">
+                <td colSpan={7} className="py-10 text-center text-[12px] text-faint">
                   Nothing matches this filter. Clear the search to see all nodes.
                 </td>
               </tr>
@@ -129,36 +119,35 @@ export function ValidatorTable({ highlight }: { highlight: string | null }) {
                 <tr
                   key={v.id}
                   className={cn(
-                    "border-b border-hairline/60 transition-colors",
-                    isTarget ? "bg-emerald/[0.07]" : "hover:bg-hairline/30",
+                    "relative border-t border-hairline transition-colors hover:bg-ink",
+                    isTarget && "bg-ink",
                   )}
                 >
-                  <td className="px-4 py-2.5 text-faint">{v.rank}</td>
-                  <td className="py-2.5">
+                  <td className="py-2.5 pr-3 text-faint">{v.rank}</td>
+                  <td className="max-w-[220px] py-2.5 pr-3">
                     <div className="flex items-center gap-2">
-                      <StatusDot tone={v.grade === "D" ? "bad" : v.grade === "C" ? "warn" : "ok"} />
-                      <span className="text-paper">{v.label}</span>
-                      {isTarget && (
-                        <span className="border border-emerald/50 px-1 text-[9px] uppercase tracking-[0.1em] text-emerald">
-                          audited
-                        </span>
-                      )}
+                      {/* selection = the 1px line, exactly as wide as the label */}
+                      <span
+                        className={cn(
+                          "relative flex items-center gap-2 pb-0.5",
+                          isTarget && "text-paper",
+                        )}
+                      >
+                        <StatusMark tone={v.grade === "D" ? "bad" : v.grade === "C" ? "warn" : "ok"} />
+                        <span className={isTarget ? "text-paper" : "text-muted"}>{v.label}</span>
+                        {isTarget && (
+                          <span aria-hidden className="absolute inset-x-0 -bottom-[3px] h-px bg-signal" />
+                        )}
+                      </span>
                     </div>
-                    <div className="mt-0.5 truncate text-[10px] text-faint">{v.id}</div>
+                    <div className="mt-0.5 truncate font-mono text-[11px] text-faint">{v.id}</div>
                   </td>
                   <td className="whitespace-nowrap py-2.5 text-right text-paper">{formatInt(v.stake)}</td>
-                  <td className="whitespace-nowrap py-2.5 text-right text-muted">{v.commission}%</td>
+                  <td className="hidden whitespace-nowrap py-2.5 text-right text-faint sm:table-cell">{v.commission}%</td>
                   <td className="whitespace-nowrap py-2.5 text-right text-muted">{v.uptime.toFixed(2)}%</td>
-                  <td className="whitespace-nowrap py-2.5 text-right text-muted">{v.missed}</td>
-                  <td className="px-4 py-2.5 text-center">
-                    <span
-                      className={cn(
-                        "inline-flex size-6 items-center justify-center border text-[11px]",
-                        gradeTone[v.grade],
-                      )}
-                    >
-                      {v.grade}
-                    </span>
+                  <td className="hidden whitespace-nowrap py-2.5 text-right text-faint md:table-cell">{v.missed}</td>
+                  <td className={cn("whitespace-nowrap py-2.5 text-right text-[13px]", gradeTone[v.grade])}>
+                    {v.grade}
                   </td>
                 </tr>
               );
@@ -167,10 +156,9 @@ export function ValidatorTable({ highlight }: { highlight: string | null }) {
         </table>
       </div>
 
-      <p className="flex items-center gap-1.5 border-t border-hairline px-4 py-2.5 font-mono text-[10px] text-faint">
-        <ArrowUpRight className="size-3" aria-hidden />
-        SentinelDot scoring model v1 — 60% uptime, 25% missed-block rate, 15%
-        stake concentration. Weights are open to change before the registry ships.
+      <p className="px-5 py-3.5 text-[12px] leading-relaxed text-faint">
+        Scoring model v1 — 60 uptime, 25 missed-block rate, 15 stake spread.
+        Weights are open to change before the registry ships.
       </p>
     </div>
   );
