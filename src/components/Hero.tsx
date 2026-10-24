@@ -201,11 +201,14 @@ function RadarWireframe() {
             />
           ))}
 
-          {/* radial spokes shooting out from the telemetry pole */}
+          {/* radial spokes shooting out from the telemetry pole.
+              Coordinates are pre-rounded: the SVG float serialiser drops the
+              trailing digit differently on the server and in the browser,
+              which trips React's hydration check on y2. */}
           {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((deg) => {
             const rad = (deg * Math.PI) / 180;
-            const x2 = 720 + Math.cos(rad) * 720;
-            const y2 = 340 + Math.sin(rad) * (720 * 0.38);
+            const x2 = Math.round(720 + Math.cos(rad) * 720);
+            const y2 = Math.round(340 + Math.sin(rad) * (720 * 0.38));
             return (
               <line
                 key={deg}
