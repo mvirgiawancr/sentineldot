@@ -1,0 +1,113 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #0b0d13;
+  --color-ink-raised: #10131b;
+  --color-ink-sunken: #080a0f;
+  --color-hairline: #1e2330;
+  --color-hairline-bright: #2c3444;
+  --color-paper: #e6e9f0;
+  --color-muted: #7d8699;
+  --color-faint: #4d5568;
+  --color-emerald: #2ee6a8;
+  --color-amber: #f0b53f;
+  --color-crimson: #ff5a5f;
+  --color-signal: #6ea8ff;
+
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-hairline);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scrollbar-color: var(--color-hairline-bright) var(--color-ink);
+  }
+
+  body {
+    background-color: var(--color-ink);
+    color: var(--color-paper);
+    font-family: var(--font-sans);
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklab, var(--color-emerald) 30%, transparent);
+    color: var(--color-paper);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-signal);
+    outline-offset: 2px;
+  }
+}
+
+@utility tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+@utility grid-field {
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--color-hairline) 55%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--color-hairline) 55%, transparent) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--color-emerald) 55%, transparent);
+  }
+  50% {
+    opacity: 0.65;
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--color-emerald) 0%, transparent);
+  }
+}
+
+@keyframes tick-in {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scanline {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(320%);
+  }
+}
+
+@utility live-dot {
+  animation: pulse-dot 2.4s ease-in-out infinite;
+}
+
+@utility tick-in {
+  animation: tick-in 0.28s ease-out;
+}
+
+@utility scanline {
+  animation: scanline 3.6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-dot,
+  .tick-in,
+  .scanline {
+    animation: none !important;
+  }
+}
