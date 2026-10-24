@@ -28,7 +28,7 @@ export function Footer() {
         </a>
       </div>
       <div className="mt-8 flex flex-wrap items-baseline justify-between gap-2 border-t border-hairline pt-4 text-[12px] text-faint">
-        <span>© 2026 SentinelDot · MIT</span>
+        <span>© 2026 SentinelDot · MIT · hero photo via Unsplash</span>
         <span className="font-mono">
           {PORTALDOT.rpc.replace("https://", "")} · chain {PORTALDOT.chainId}
         </span>
